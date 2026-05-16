@@ -8,7 +8,7 @@ def extract_frames(input_path, out_dir, every, prefix, ext):
     output_pattern = out_dir / f"{prefix}_%06d.{ext}"
 
     # select every N frames using frame index n
-    vf = f"select=not(mod(n\,{every}))"
+    vf = rf"select=not(mod(n\,{every}))"
     cmd = [
         "ffmpeg",
         "-hide_banner",
@@ -17,7 +17,7 @@ def extract_frames(input_path, out_dir, every, prefix, ext):
         str(input_path),
         "-vf",
         vf,
-        "-vsync",
+        "-fps_mode",
         "vfr",
         str(output_pattern),
     ]

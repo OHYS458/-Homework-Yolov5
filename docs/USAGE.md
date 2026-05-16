@@ -17,7 +17,7 @@
 - 如需切片，将片段放入 data/slices/。
 - 可使用切片工具或手动处理。
 
-如果使用内置脚本切片：
+如果使用内置脚本切片（先切片再抽帧）：
 
 python tools/slice_video.py --input "data/videos/交通视频素材.mp4" --out-dir "data/slices" --count 20 --prefix "traffic"
 
@@ -30,12 +30,30 @@ python tools/slice_video.py --input "data/videos/交通视频素材.mp4" --out-d
 
 python tools/extract_frames.py --input "data/videos/交通视频素材.mp4" --out-dir "data/images" --every 5 --prefix "traffic"
 
-## 4. 数据标注
+如果从切片视频抽帧（示例，需替换输入文件）：
+
+python tools/extract_frames.py --input "data/slices/traffic_001.mp4" --out-dir "data/images" --every 5 --prefix "traffic"
+
+## 4. 数据标注（人工步骤）
 
 - 使用标注工具生成 YOLO 格式标签文件。
 - 将标签文件放入 data/labels/。
 
-## 5. 构建数据集结构
+LabelImg 启动方式（推荐 .venv310 环境）：
+
+$pluginPath = .\.venv310\Scripts\python.exe -c "import os, PyQt5; print(os.path.join(os.path.dirname(PyQt5.__file__), 'Qt5', 'plugins'))"
+$env:QT_PLUGIN_PATH = $pluginPath
+$env:QT_QPA_PLATFORM_PLUGIN_PATH = "$pluginPath\platforms"
+.\.venv310\Scripts\pythonw.exe .\.venv310\Scripts\labelImg-script.py
+
+LabelImg 使用步骤：
+
+- 打开图片目录：data/images/
+- 设置保存目录：data/labels/
+- 保存格式选择：YOLO
+- 完成框选后保存，生成同名 .txt 标签文件
+
+## 5. 构建数据集结构（人工步骤）
 
 使用标准 YOLOv5 目录结构，例如：
 
@@ -49,7 +67,7 @@ python tools/extract_frames.py --input "data/videos/交通视频素材.mp4" --ou
 
 将 data/images/ 与 data/labels/ 中的文件移动或复制到上述数据集目录。
 
-## 6. 创建数据集配置
+## 6. 创建数据集配置（人工步骤）
 
 在 configs/data.yaml 中填写类别名与数据集路径。
 示例：
