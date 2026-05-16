@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+
+# Data
+/data/videos/
+/data/slices/
+/data/images/
+/data/labels/
+/data/dataset/
+
+# Outputs
+/runs/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,6 @@
+# 数据集配置示例
+train: data/dataset/images/train
+val: data/dataset/images/val
+
+nc: 1
+names: ["类别名"]
