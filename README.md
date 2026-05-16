@@ -9,11 +9,13 @@
 - data/videos/           用户原始视频（输入）
 - data/slices/           视频切片（手动或 AI 切片）
 - data/images/           抽帧图像（用于标注）
-- data/labels/           标注文件（YOLO 格式）
+- data/labels/           标注文件（XML 格式）
+- data/labels_yolo/      标注文件（YOLO 格式）
 - data/dataset/          训练/验证数据集结构
 - configs/               数据集配置文件
 - tools/                 辅助脚本（可选）
 - runs/                  训练与推理输出
+- runs/logs/             运行日志
 - docs/                  项目文档
 
 ## 快速开始

@@ -2,5 +2,5 @@
 train: data/dataset/images/train
 val: data/dataset/images/val
 
-nc: 1
-names: ["类别名"]
+nc: 4
+names: ["truck", "car", "bus", "bicycle"]

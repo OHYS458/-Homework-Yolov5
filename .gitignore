@@ -10,6 +10,7 @@ __pycache__/
 /data/slices/
 /data/images/
 /data/labels/
+/data/labels_yolo/
 /data/dataset/
 
 # Outputs

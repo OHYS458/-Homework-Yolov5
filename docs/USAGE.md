@@ -53,7 +53,43 @@ LabelImg 使用步骤：
 - 保存格式选择：YOLO
 - 完成框选后保存，生成同名 .txt 标签文件
 
-## 5. 构建数据集结构（人工步骤）
+标注数量建议（用于第一次训练）：
+
+- 至少标注 50 张用于快速试跑流程。
+- 建议标注 100-200 张获得可用的初版模型。
+- 之后可用该模型辅助自动标注，再人工修正。
+
+## 4.1 自动标注（可选）
+
+自动标注需要已有训练好的权重文件（例如 best.pt）。如果没有权重，无法生成自动标签。
+
+常用参数说明：
+
+- conf（置信度阈值）：模型认为“这是目标”的最低把握程度，数值越高越严格。
+- iou（重叠度阈值）：用于去除重复框，数值越高越“保留更多框”。
+
+推荐默认值（入门）：
+
+- conf = 0.25
+- iou = 0.45
+
+## 5. XML 转 YOLO 并构建数据集结构
+
+如果 LabelImg 保存的是 VOC XML，需要先转换为 YOLO txt 并拆分训练/验证集：
+
+python tools/build_dataset.py --images-dir "data/images" --xml-dir "data/labels" --labels-out "data/labels_yolo" --dataset-dir "data/dataset" --classes "truck,car,bus,bicycle" --train-ratio 0.8
+
+脚本会生成：
+
+- data/labels_yolo/
+- data/dataset/images/train
+- data/dataset/images/val
+- data/dataset/labels/train
+- data/dataset/labels/val
+
+完成后可进入训练步骤。
+
+## 6. 创建数据集配置（人工步骤）
 
 使用标准 YOLOv5 目录结构，例如：
 

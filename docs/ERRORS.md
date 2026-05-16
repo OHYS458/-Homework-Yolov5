@@ -65,6 +65,23 @@
 - 在脚本首部增加编码声明（本次已处理）：
   - # -*- coding: gbk -*-
 
+## 6. 标注时绘图崩溃（float 传给 Qt）
+
+现象：
+- 打标或拖拽时直接闪退。
+- 终端/日志出现 TypeError，提示 drawLine/drawRect 不接受 float。
+
+原因：
+- LabelImg 内部绘图函数传入了 float，但 PyQt5 需要 int。
+
+解决方案（已在本机 .venv310 修复）：
+- 将绘图坐标强制转换为 int：
+  - libs/canvas.py 的 drawLine 与 drawRect 相关代码
+  - labelImg/labelImg.py 的 scroll_request
+
+说明：
+- 以上修复位于 .venv310 中的第三方包，如果重装 labelImg 可能需要重复修补。
+
 ---
 
 ## 推荐使用方式（本项目）
