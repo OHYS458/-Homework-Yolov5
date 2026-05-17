@@ -1,7 +1,8 @@
-param(
+﻿param(
     [string]$Video = "data/videos/交通视频素材.mp4",
     [int]$Every = 5,
-    [string]$Weights = "yolov5/runs/train/exp3/weights/best.pt",
+    # [string]$Weights = "yolov5/runs/train/exp3/weights/best.pt",
+    [string]$Weights = "yolov5s.pt",
     [string]$FramesDir = "data/images",
     [string]$SlicesDir = "data/slices"
 )
@@ -21,7 +22,7 @@ function Read-YesNo {
     return $answer.Trim().ToLower().StartsWith('y')
 }
 
-$projectRoot = Split-Path -Parent $PSScriptRoot
+$projectRoot = $PSScriptRoot
 $venv = Join-Path $projectRoot '.venv310'
 $python = Join-Path $venv 'Scripts\python.exe'
 $labelImgScript = Join-Path $venv 'Scripts\labelImg-script.py'
@@ -51,20 +52,30 @@ if (-not (Test-Path $python)) {
 }
 
 Write-Host "[3/6] 检查 LabelImg"
-if (-not (Test-Path $labelImgScript)) {
-    Write-Host "未检测到 LabelImg，开始安装..."
+$labelImgOk = $false
+if (Test-Path $labelImgScript) {
+    try {
+        & $python -c "import PyQt5, labelImg" | Out-Null
+        $labelImgOk = $true
+    } catch {
+        $labelImgOk = $false
+    }
+}
+if (-not $labelImgOk) {
+    Write-Host "未检测到可用的 LabelImg，开始安装..."
     & $python -m pip install --upgrade pip
     & $python -m pip install labelImg PyQt5
 }
 
-$videoPath = Read-Host "请输入视频路径（默认: $Video）"
-if (-not [string]::IsNullOrWhiteSpace($videoPath)) {
-    $Video = $videoPath
-}
-
 $videoFull = Join-Path $projectRoot $Video
 if (-not (Test-Path $videoFull)) {
-    throw "找不到视频文件: $videoFull"
+    Write-Host "找不到视频文件: $videoFull"
+    $videoDir = Join-Path $projectRoot 'data\videos'
+    if (Test-Path $videoDir) {
+        Write-Host "当前 data/videos 下的文件："
+        Get-ChildItem -Path $videoDir | ForEach-Object { Write-Host "- $($_.Name)" }
+    }
+    throw "请确认视频已放入 data/videos/ 并保持文件名一致。"
 }
 
 $doSlice = Read-YesNo "是否需要先切片？" $false
@@ -98,13 +109,11 @@ if ($doSlice) {
     $extracted = $true
 }
 
-$weightsInput = Read-Host "请输入权重路径（默认: $Weights）"
-if (-not [string]::IsNullOrWhiteSpace($weightsInput)) {
-    $Weights = $weightsInput
-}
-$weightsFull = Join-Path $projectRoot $Weights
-if (-not (Test-Path $weightsFull)) {
-    throw "找不到权重文件: $weightsFull"
+if (-not [string]::IsNullOrWhiteSpace($Weights)) {
+    $weightsFull = Join-Path $projectRoot $Weights
+    if (-not (Test-Path $weightsFull)) {
+        throw "找不到权重文件: $weightsFull"
+    }
 }
 
 Write-Host "[4/6] 开始自动打标"
