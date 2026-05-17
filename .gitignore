@@ -7,9 +7,12 @@ __pycache__/
 .venv310/
 
 # Data
-/data/videos/
-/data/slices/
-/data/images/
+/data/videos/*
+!/data/videos/.gitkeep
+/data/slices/*
+!/data/slices/.gitkeep
+/data/images/*
+!/data/images/.gitkeep
 /data/labels/
 /data/labels_yolo/
 /data/labels_auto/
