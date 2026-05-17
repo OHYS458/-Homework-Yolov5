@@ -19,14 +19,16 @@
 - runs/logs/             运行日志
 - docs/                  项目文档
 
-## 快速开始
+## 一键完成作业
 
-1. 将视频放入 data/videos/。
-2. 将视频切片到 data/slices/（如不需要可跳过）。
-3. 抽帧到 data/images/。
-4. 标注并将标签放入 data/labels/。
-5. 在 data/dataset/ 下构建数据集结构。
-6. 在 configs/data.yaml 中创建数据集配置。
-7. 使用 YOLOv5 训练或推理。
+你只需要执行两个脚本即可完成：
+
+1) 一键切片-抽帧-自动打标-人工纠正（带环境检测与辅助下载）
+
+powershell -ExecutionPolicy Bypass -File run_pipeline.ps1
+
+2) 一键训练
+
+powershell -ExecutionPolicy Bypass -File run_train.ps1
 
 完整说明见 docs/USAGE.md。
