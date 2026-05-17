@@ -1,0 +1,8 @@
+path: ../data/aabb_dataset
+
+train: images/train
+val: images/val
+test: images/test
+
+nc: 9
+names: ["Bicycle", "Bus", "Jeepney", "Motorcycle", "Multicab", "SUV", "Sedan", "Truck", "Van"]

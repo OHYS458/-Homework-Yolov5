@@ -19,7 +19,7 @@
 
 如果使用内置脚本切片（先切片再抽帧）：
 
-python tools/slice_video.py --input "data/videos/交通视频素材.mp4" --out-dir "data/slices" --count 20 --prefix "traffic"
+python tools/steps/slice_video.py --input "data/videos/交通视频素材.mp4" --out-dir "data/slices" --count 20 --prefix "traffic"
 
 ## 3. 抽帧
 
@@ -28,11 +28,11 @@ python tools/slice_video.py --input "data/videos/交通视频素材.mp4" --out-d
 
 如果从原始视频抽帧（每 5 帧 1 张）：
 
-python tools/extract_frames.py --input "data/videos/交通视频素材.mp4" --out-dir "data/images" --every 5 --prefix "traffic"
+python tools/steps/extract_frames.py --input "data/videos/交通视频素材.mp4" --out-dir "data/images" --every 5 --prefix "traffic"
 
 如果从切片视频抽帧（示例，需替换输入文件）：
 
-python tools/extract_frames.py --input "data/slices/traffic_001.mp4" --out-dir "data/images" --every 5 --prefix "traffic"
+python tools/steps/extract_frames.py --input "data/slices/traffic_001.mp4" --out-dir "data/images" --every 5 --prefix "traffic"
 
 ## 4. 数据标注（人工步骤）
 
@@ -81,13 +81,64 @@ LabelImg 使用步骤：
 
 python yolov5/detect.py --weights yolov5/runs/train/exp4/weights/best.pt --source data/images --save-txt --save-conf --project runs/detect --name auto
 
+## 4.2 抽帧 + 自动打标总执行脚本（可选）
+
+需要已有训练好的权重文件。该脚本会自动清洗标签，去除多余的置信度列，避免 LabelImg 报错。
+
+python tools/pipelines/auto_label_from_video.py --input "data/videos/交通视频素材.mp4" --frames-dir "data/images" --every 5 --weights "yolov5/runs/train/exp4/weights/best.pt" --labels-dir "data/labels_auto" --classes "Bicycle,Bus,Jeepney,Motorcycle,Multicab,SUV,Sedan,Truck,Van"
+
+## 4.3 OBB 训练与自动打标流程（可选）
+
+说明：
+
+- OBB 数据集是旋转框格式，建议使用 yolov5-obb 仓库进行训练与推理。
+- 请将 yolov5-obb 放在项目根目录下：yolov5-obb/。
+- Car Detection Model.v1i.yolov5-obb 的 labelTxt 需要先转换为 yolov5-obb 标签格式。
+
+OBB 数据集准备：
+
+python tools/pipelines/prepare_obb_dataset.py
+
+准备完成后，训练配置文件为：configs/obb_data.yaml
+
+OBB 训练（使用 yolov5-obb）：
+
+powershell -ExecutionPolicy Bypass -File tools/pipelines/train_obb.ps1 -Epochs 50 -Batch 16 -Img 640 -Weights yolov5s.pt
+
+转换标签（train/valid/test 各自执行一次）：
+
+python tools/steps/convert_obb_labels.py --labels-in "Car Detection Model.v1i.yolov5-obb/train/labelTxt" --labels-out "data/labels_obb/train" --classes "Bicycle,Bus,Jeepney,Motorcycle,Multicab,SUV,Sedan,Truck,Van"
+
+OBB 自动打标（使用 yolov5-obb 权重）：
+
+python tools/pipelines/auto_label_from_video_obb.py --input "data/videos/交通视频素材.mp4" --frames-dir "data/images" --every 5 --weights "yolov5-obb/runs/train/exp/weights/best.pt" --labels-dir "data/labels_auto_obb"
+
+## 4.4 使用 OBB 数据集训练标准 YOLOv5（水平框）
+
+说明：
+
+- 将 OBB 旋转框转换为水平框，适配标准 YOLOv5。
+- 输出数据集位置：data/aabb_dataset。
+
+准备数据集：
+
+python tools/pipelines/prepare_aabb_dataset.py
+
+训练（在 yolov5/ 下运行）：
+
+python train.py --img 640 --batch 16 --epochs 50 --data ../configs/aabb_data.yaml --weights yolov5s.pt
+
+训练完成后，用标准自动打标脚本：
+
+python tools/pipelines/auto_label_from_video.py --input "data/videos/交通视频素材.mp4" --frames-dir "data/images" --every 5 --weights "yolov5/runs/train/exp/weights/best.pt" --labels-dir "data/labels_auto"
+
 运行后将 runs/detect/auto/labels 下的 txt 复制到 data/labels_auto/，再进行人工修正。
 
 ## 5. XML 转 YOLO 并构建数据集结构
 
 如果 LabelImg 保存的是 VOC XML，需要先转换为 YOLO txt 并拆分训练/验证集：
 
-python tools/build_dataset.py --images-dir "data/images" --xml-dir "data/labels" --labels-out "data/labels_yolo" --dataset-dir "data/dataset" --classes "truck,car,bus,bicycle" --train-ratio 0.8
+python tools/steps/build_dataset.py --images-dir "data/images" --xml-dir "data/labels" --labels-out "data/labels_yolo" --dataset-dir "data/dataset" --classes "truck,car,bus,bicycle" --train-ratio 0.8
 
 脚本会生成：
 
