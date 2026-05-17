@@ -82,6 +82,35 @@
 说明：
 - 以上修复位于 .venv310 中的第三方包，如果重装 labelImg 可能需要重复修补。
 
+## 7. 自动标注标签加载失败（classes.txt 缺失）
+
+现象：
+- 选择 data/labels_auto 后无法显示标签，切换图片时崩溃。
+- 日志提示找不到 classes.txt。
+
+原因：
+- LabelImg 读取 YOLO 标签时依赖 classes.txt，但自动标注输出只有 txt 标签。
+
+解决方案：
+- 在 data/labels_auto/ 下创建 classes.txt，内容为每行一个类别名：
+  - truck
+  - car
+  - bus
+  - bicycle
+
+## 8. 自动标注带置信度导致解析失败
+
+现象：
+- 点击下一张图片崩溃。
+- 日志提示 ValueError: too many values to unpack (expected 5)。
+
+原因：
+- 自动标注的 txt 行包含 6 列（多了置信度），而 LabelImg 只支持 5 列。
+
+解决方案（已在本机 .venv310 修复）：
+- 解析时忽略第 6 列：
+  - libs/yolo_io.py 中只取前 5 个字段
+
 ---
 
 ## 推荐使用方式（本项目）

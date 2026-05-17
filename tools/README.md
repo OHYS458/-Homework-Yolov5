@@ -80,3 +80,16 @@ powershell -ExecutionPolicy Bypass -File tools/start_labelimg_console.ps1
 使用方法（4 类，8:2 拆分）：
 
 python tools/build_dataset.py --images-dir "data/images" --xml-dir "data/labels" --labels-out "data/labels_yolo" --dataset-dir "data/dataset" --classes "truck,car,bus,bicycle" --train-ratio 0.8
+
+## 一键清理用户数据
+
+脚本：clean_user_data.ps1
+
+用途：
+
+- 删除切片、抽帧、标注、自动标注、训练/推理输出等用户生成数据
+- 保留 data/videos 中的原始视频
+
+使用方法：
+
+powershell -ExecutionPolicy Bypass -File tools/clean_user_data.ps1
