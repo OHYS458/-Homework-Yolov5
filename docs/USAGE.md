@@ -73,6 +73,16 @@ LabelImg 使用步骤：
 - conf = 0.25
 - iou = 0.45
 
+自动标注结果建议存放位置：
+
+- data/labels_auto/
+
+自动标注命令（使用训练得到的 best.pt）：
+
+python yolov5/detect.py --weights yolov5/runs/train/exp4/weights/best.pt --source data/images --save-txt --save-conf --project runs/detect --name auto
+
+运行后将 runs/detect/auto/labels 下的 txt 复制到 data/labels_auto/，再进行人工修正。
+
 ## 5. XML 转 YOLO 并构建数据集结构
 
 如果 LabelImg 保存的是 VOC XML，需要先转换为 YOLO txt 并拆分训练/验证集：
@@ -91,27 +101,22 @@ python tools/build_dataset.py --images-dir "data/images" --xml-dir "data/labels"
 
 ## 6. 创建数据集配置（人工步骤）
 
-使用标准 YOLOv5 目录结构，例如：
-
-- data/dataset/
-  - images/
-    - train/
-    - val/
-  - labels/
-    - train/
-    - val/
-
-将 data/images/ 与 data/labels/ 中的文件移动或复制到上述数据集目录。
-
-## 6. 创建数据集配置（人工步骤）
-
 在 configs/data.yaml 中填写类别名与数据集路径。
 示例：
 
 - train: data/dataset/images/train
 - val: data/dataset/images/val
-- nc: 1
-- names: ["类别名"]
+- nc: 4
+- names: ["truck", "car", "bus", "bicycle"]
+
+如果路径包含中文，建议用盘符映射（例如 W:）以避免训练找不到数据：
+
+subst W: "E:\大学\VScode\Projects\-Homework-Yolov5"
+
+然后在 configs/data.yaml 中填写：
+
+- train: W:/data/dataset/images/train
+- val: W:/data/dataset/images/val
 
 ## 7. 训练
 

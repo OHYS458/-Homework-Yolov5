@@ -1,6 +1,6 @@
 # 数据集配置示例
-train: data/dataset/images/train
-val: data/dataset/images/val
+train: W:/data/dataset/images/train
+val: W:/data/dataset/images/val
 
 nc: 4
 names: ["truck", "car", "bus", "bicycle"]

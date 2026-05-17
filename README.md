@@ -11,6 +11,7 @@
 - data/images/           抽帧图像（用于标注）
 - data/labels/           标注文件（XML 格式）
 - data/labels_yolo/      标注文件（YOLO 格式）
+- data/labels_auto/      自动标注结果（待人工修正）
 - data/dataset/          训练/验证数据集结构
 - configs/               数据集配置文件
 - tools/                 辅助脚本（可选）
