@@ -8,31 +8,33 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$projectRoot = Split-Path -Parent $PSScriptRoot
+# 使用当前脚本所在目录作为项目根目录
+$projectRoot = $PSScriptRoot 
 $venv = Join-Path $projectRoot '.venv310'
 $python = Join-Path $venv 'Scripts\python.exe'
 $trainScript = Join-Path $projectRoot 'yolov5\train.py'
 
 if (-not (Test-Path $python)) {
-    throw "未找到 .venv310，请先运行 run_pipeline.ps1 进行环境准备。"
+    throw "Error: No .venv310 found. Please run run_pipeline.ps1 first."
 }
 if (-not (Test-Path $trainScript)) {
-    throw "未找到 yolov5/train.py，请先放置 yolov5 代码到根目录。"
+    throw "Error: No yolov5/train.py found. Please check your folder structure."
 }
 
 $imagesDir = Join-Path $projectRoot 'data\images'
 $labelsDir = Join-Path $projectRoot 'data\labels_auto'
 if (-not (Test-Path $imagesDir)) {
-    throw "找不到抽帧图片目录: $imagesDir"
+    throw "Error: Cannot find images dir: $imagesDir"
 }
 if (-not (Test-Path $labelsDir)) {
-    throw "找不到自动标注目录: $labelsDir"
+    throw "Error: Cannot find labels dir: $labelsDir"
 }
 
-Write-Host "[1/2] 构建训练数据集（data/dataset_auto）"
-& $python "tools/steps/build_dataset_from_yolo.py" --images-dir $imagesDir --labels-dir $labelsDir --dataset-dir "data/dataset_auto" --train-ratio $TrainRatio
+Write-Host "[1/2] Building dataset (data/dataset_auto)..."
+$buildScript = Join-Path $projectRoot "tools\steps\build_dataset_from_yolo.py"
+& $python $buildScript --images-dir $imagesDir --labels-dir $labelsDir --dataset-dir (Join-Path $projectRoot "data/dataset_auto") --train-ratio $TrainRatio
 
-Write-Host "[2/2] 开始训练"
+Write-Host "[2/2] Starting training..."
 Push-Location (Split-Path -Parent $trainScript)
 & $python $trainScript --img $Img --batch $Batch --epochs $Epochs --data ../configs/labels_auto_data.yaml --weights (Join-Path $projectRoot $Weights)
 Pop-Location
