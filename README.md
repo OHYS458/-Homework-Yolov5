@@ -44,3 +44,11 @@ bash run_pipeline.sh
 2) 一键训练
 
 bash run_train.sh
+
+## 一件清除训练数据（恢复初始状态）
+
+tools\steps\clean_user_data.ps1     
+
+## 训练结果地址
+
+yolov5\runs\train\exp

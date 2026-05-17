@@ -7,8 +7,8 @@ __pycache__/
 .venv310/
 
 # Data
-/data/videos/*
-!/data/videos/.gitkeep
+# /data/videos/*
+# !/data/videos/.gitkeep
 /data/slices/*
 !/data/slices/.gitkeep
 /data/images/*
@@ -23,10 +23,12 @@ __pycache__/
 /data/dataset_auto/
 /data/aabb_dataset/
 /data/obb_dataset/
+TODO.md
 
 # Outputs
-/runs/
-/yolov5/runs/
+# /runs/
+# !/runs/.gitkeep
+# /yolov5/runs/
 /yolov5-obb/
 
 # OS
