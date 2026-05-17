@@ -3,12 +3,19 @@
 # 参数默认值
 IMG=640
 BATCH=16
-EPOCHS=50
+EPOCHS=5
 WEIGHTS="yolov5s.pt"
 TRAIN_RATIO=0.8
 
 # 遇到错误时停止执行
 set -e
+
+# === 交互式询问训练回合数 ===
+read -p "请输入训练回合数 (Epochs) [默认: $EPOCHS]: " INPUT_EPOCHS
+# 如果用户输入为空，则保留默认值，否则赋值新值
+EPOCHS=${INPUT_EPOCHS:-$EPOCHS}
+echo "当前训练回合数设置为: $EPOCHS"
+# ==================================
 
 # 获取脚本所在目录的绝对路径
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

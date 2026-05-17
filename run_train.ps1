@@ -6,7 +6,24 @@ param(
     [double]$TrainRatio = 0.8
 )
 
+# === 编码设置必须放在 param 块下方 ===
+# 强制当前 PowerShell 标签页使用 UTF-8 编码，彻底解决中文提示词乱码
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
 $ErrorActionPreference = 'Stop'
+
+# === 交互式询问训练回合数 ===
+$inputEpochs = Read-Host "请输入训练回合数 (Epochs) [默认: $Epochs]"
+if (-not [string]::IsNullOrWhiteSpace($inputEpochs)) {
+    # 使用正则表达式判断输入是否为纯数字
+    if ($inputEpochs -match '^\d+$') {
+        $Epochs = [int]$inputEpochs
+    } else {
+        Write-Warning "输入格式不正确（不是纯数字），将使用默认值: $Epochs"
+    }
+}
+Write-Host "当前训练回合数设置为: $Epochs"
+# ===============================================
 
 # 使用当前脚本所在目录作为项目根目录
 $projectRoot = $PSScriptRoot 

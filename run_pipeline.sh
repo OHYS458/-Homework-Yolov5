@@ -34,7 +34,6 @@ read_yes_no() {
         return $([ "$default_yes" = true ] && echo 0 || echo 1)
     fi
     
-    # 转换为小写并检查是否以 'y' 开头
     answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
     if [[ "$answer" =~ ^y ]]; then
         return 0
@@ -47,40 +46,52 @@ echo "[1/6] 检查 FFmpeg"
 if ! command -v ffmpeg &> /dev/null; then
     echo "未检测到 ffmpeg，无法切片/抽帧。"
     if read_yes_no "是否打开 FFmpeg 下载页面？"; then
-        # Linux 下使用 xdg-open 打开网页，macOS 可以改为 open
-        xdg-open "https://www.gyan.dev/ffmpeg/builds/" || open "https://www.gyan.dev/ffmpeg/builds/" 2>/dev/null || true
+        open "https://www.gyan.dev/ffmpeg/builds/" 2>/dev/null || xdg-open "https://www.gyan.dev/ffmpeg/builds/" || true
     fi
     echo "错误：请先安装 ffmpeg 并配置到 PATH。" >&2
     exit 1
 fi
 
 echo "[2/6] 检查 Python 3.10 环境"
+VENV_JUST_CREATED=false
 if [ ! -f "$PYTHON" ]; then
     if command -v python3.10 &> /dev/null; then
-        echo "未检测到 .venv310，开始创建虚拟环境..."
+        echo "未检测到 .venv310，开始创建本地虚拟环境..."
         python3.10 -m venv "$VENV"
+        VENV_JUST_CREATED=true
     else
         echo "未检测到 Python 3.10。"
         if read_yes_no "是否打开 Python 3.10 下载页面？"; then
-            xdg-open "https://www.python.org/downloads/release/python-31011/" || open "https://www.python.org/downloads/release/python-31011/" 2>/dev/null || true
+            open "https://www.python.org/downloads/release/python-31011/" 2>/dev/null || xdg-open "https://www.python.org/downloads/release/python-31011/" || true
         fi
         echo "错误：请先安装 Python 3.10。" >&2
         exit 1
     fi
 fi
 
+# 如果是刚创建的环境，或者环境里缺东西，自动帮补齐 YOLOv5 和 Torch 依赖
+if [ "$VENV_JUST_CREATED" = true ] || ! "$PYTHON" -c "import torch" &> /dev/null; then
+    echo "正在为虚拟环境安装/修复 YOLOv5 及 PyTorch 核心依赖..."
+    "$PYTHON" -m pip install --upgrade pip
+    if [ -f "yolov5/requirements.txt" ]; then
+        "$PYTHON" -m pip install -r yolov5/requirements.txt
+    else
+        "$PYTHON" -m pip install torch torchvision
+    fi
+fi
+
 echo "[3/6] 检查 LabelImg"
 LABELIMG_OK=false
-if [ -f "$LABELIMG_SCRIPT" ]; then
-    if "$PYTHON" -c "import PyQt5, labelImg" &> /dev/null; then
+if [ -f "$LABELIMG_SCRIPT" ] || command -v labelImg &> /dev/null; then
+    if "$PYTHON" -c "import PyQt5" &> /dev/null; then
         LABELIMG_OK=true
     fi
 fi
 
 if [ "$LABELIMG_OK" = false ]; then
-    echo "未检测到可用的 LabelImg，开始安装..."
-    "$PYTHON" -m pip install --upgrade pip
-    "$PYTHON" -m pip install labelImg PyQt5
+    echo "未检测到可用的 LabelImg 依赖，正在配置..."
+    # Mac 上单独对虚拟环境安装，避免破坏已有的 torch
+    "$PYTHON" -m pip install PyQt5 labelImg --no-cache-dir
 fi
 
 VIDEO_FULL="$PROJECT_ROOT/$VIDEO"
@@ -110,7 +121,6 @@ if read_yes_no "是否需要先切片？" false; then
     "$PYTHON" "tools/steps/slice_video.py" --input "$VIDEO" --out-dir "$SLICES_DIR" --count "$SLICE_COUNT" --prefix "$SLICE_PREFIX"
 
     SLICE_FULL="$PROJECT_ROOT/$SLICES_DIR"
-    # 检查是否存在 mp4 文件
     if [ ! -d "$SLICE_FULL" ] || [ -z "$(ls -A "$SLICE_FULL"/*.mp4 2>/dev/null)" ]; then
         echo "错误：切片目录下未找到 mp4 文件: $SLICE_FULL" >&2
         exit 1
@@ -127,7 +137,8 @@ else
     EXTRACTED=true
 fi
 
-if [ -not -z "$WEIGHTS" ]; then
+# 修复这里的语法错误
+if [ ! -z "$WEIGHTS" ]; then
     WEIGHTS_FULL="$PROJECT_ROOT/$WEIGHTS"
     if [ ! -f "$WEIGHTS_FULL" ]; then
         echo "错误：找不到权重文件: $WEIGHTS_FULL" >&2
@@ -156,7 +167,6 @@ echo "[5/6] 打开 LabelImg 进行人工纠正"
 echo "请在 LabelImg 中打开图片目录：data/images"
 echo "保存目录设为：data/labels_auto"
 
-# 运行对应的 shell 脚本
 if [ -f "tools/tests/start_labelimg.sh" ]; then
     bash "tools/tests/start_labelimg.sh"
 else
