@@ -14,8 +14,10 @@ __pycache__/
 /data/images/*
 !/data/images/.gitkeep
 /data/labels/
+!/data/labels/.gitkeep
 /data/labels_yolo/
 /data/labels_auto/
+!/data/labels_auto/.gitkeep
 /data/labels_auto_obb/
 /data/dataset/
 /data/dataset_auto/

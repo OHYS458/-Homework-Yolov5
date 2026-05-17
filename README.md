@@ -21,6 +21,8 @@
 
 ## 一键完成作业
 
+### window运行shell脚本
+
 你只需要执行两个脚本即可完成：
 
 1) 一键切片-抽帧-自动打标-人工纠正（带环境检测与辅助下载）
@@ -32,3 +34,13 @@ powershell -ExecutionPolicy Bypass -File run_pipeline.ps1
 powershell -ExecutionPolicy Bypass -File run_train.ps1
 
 完整说明见 docs/USAGE.md。
+
+### mac运行sh脚本
+
+1) 一键切片-抽帧-自动打标-人工纠正（带环境检测与辅助下载）
+
+bash run_pipeline.sh
+
+2) 一键训练
+
+bash run_train.sh
