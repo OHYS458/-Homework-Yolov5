@@ -46,8 +46,10 @@ bash run_pipeline.sh
 bash run_train.sh
 
 ## 一件清除训练数据（恢复初始状态）
-
+【windows】
 tools\steps\clean_user_data.ps1     
+【mac】
+tools\steps\clean_user_data.sh
 
 ## 训练结果地址
 
