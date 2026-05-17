@@ -4,6 +4,7 @@ __pycache__/
 *.pyo
 *.pyd
 .venv/
+.venv310/
 
 # Data
 /data/videos/
@@ -12,10 +13,16 @@ __pycache__/
 /data/labels/
 /data/labels_yolo/
 /data/labels_auto/
+/data/labels_auto_obb/
 /data/dataset/
+/data/dataset_auto/
+/data/aabb_dataset/
+/data/obb_dataset/
 
 # Outputs
 /runs/
+/yolov5/runs/
+/yolov5-obb/
 
 # OS
 .DS_Store
